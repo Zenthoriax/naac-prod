@@ -1,0 +1,10 @@
+{
+  "name": "NAAC SSR Verifier",
+  "short_name": "SSR Verify",
+  "description": "NAAC Self Study Report proof authenticity verification tool",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#dc2626",
+  "icons": []
+}
