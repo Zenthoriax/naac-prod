@@ -1,70 +1,49 @@
-# NAAC SSR Verifier v2.0
+# Antigravity: V3.1 NAAC Forensic Auditor
 
-**Detect fake and unverifiable proof links in NAAC Self Study Reports before submission.**
+## Project Overview
+The NAAC SSR Verifier (V3.1 Architecture) is a Zero-Trust forensic auditing system powered by the Groq Llama-3.3 inference engine. It is designed to empower institutional IQAC cells and pre-DVV simulations by enforcing strict quantitative arithmetic checks, domain linkage validation, and metadata drift analysis on uploaded evidence protocols.
 
-Powered by **Claude Sonnet on Azure AI** — uses your Azure student credits, no separate API subscription needed.
+## Tech Stack
+- **Backend:** Node.js, Express.js
+- **Frontend:** React, Vite
+- **Database:** Neon Postgres (Connection Pooling & Atomic Transactions)
+- **AI Core:** Groq API (Llama-3.3-70b for text, Llama-3.2-11b-Vision for scanned PDFs)
+- **Auth:** Passport.js (Google OAuth 2.0)
 
----
+## Security & Resilience Features
+- **Domain Guard:** Strictly limits system access to authorized assessors holding `@jainuniversity.ac.in` credentials.
+- **Free-Tier Resilience:** Employs global API rate limiting (10 audits per hour per user) via `express-rate-limit` to prevent infrastructure abuse and ensure graceful fallbacks during API threshold breaches.
+- **Atomic Telemetry:** Utilizes PostgreSQL atomic transaction rollbacks to prevent database corruption if a forensic audit fails midway.
+- **Llama-Vision Fallback:** Automatically detects legacy scanned imagery inside PDFs and routes them directly to Groq's multimodal endpoints, completely bypassing fragile OS-level OCR dependencies.
 
-## What It Does
+## Installation Guide
 
-Extracts every hyperlink from your SSR PDF and audits each one:
-
-| Platform | What's checked |
-|---|---|
-| **Coursera** | Certificate ID verified against Coursera's database |
-| **NPTEL** | Certificate page content on archive.nptel.ac.in |
-| **SWAYAM** | Resolution on swayam.gov.in |
-| **DOI / Journals** | DOI resolves to real publisher (IEEE, Springer, Elsevier…) |
-| **Google Drive** | Public vs private — NAAC needs public links |
-| **GitHub** | Repository exists and is public |
-| **LinkedIn** | Reachability + manual review flag |
-| **All others** | Claude AI reads the page and reasons about authenticity |
-
-**Verdicts:** GENUINE · SUSPICIOUS · FAKE · UNREACHABLE
-
-**Features:** Demo mode · Filter by verdict · Export printable HTML report · Cancel mid-audit
-
----
-
-## Deploy (15 minutes)
-
-See **[DEPLOY.md](./DEPLOY.md)** for complete step-by-step instructions.
-
-Short version:
-1. Azure Portal → Azure AI Foundry → deploy `claude-sonnet-4-5`
-2. Copy your endpoint + key
-3. Push this repo to GitHub
-4. Create Web Service on Render.com — connect repo, add env vars, deploy
-
----
-
-## Local Development
+### 1. Repository Setup
+Clone the repository and install the dependencies for both the backend and frontend.
 
 ```bash
-npm run install:all        # install all dependencies
-cp .env.example .env       # copy env template
-# fill in AZURE_AI_ENDPOINT and AZURE_AI_KEY in .env
-npm run dev                # starts backend + frontend together
-# open http://localhost:5173
+git clone https://github.com/your-username/naac-prod.git
+cd naac-prod
+npm run install:all
+```
+
+### 2. Environment Variables
+Copy the template environment file and populate it with your specific API and database keys.
+```bash
+cp .env.example .env
+```
+
+### 3. Database Migration
+Ensure your Neon PostgreSQL database has the required schema. Specifically, the `users` and `naac_audits` tables, and the session storage.
+```bash
+node server/scripts/migrate.js
+```
+
+### 4. Boot the Servers
+Start both the Vite frontend and the Express backend concurrently:
+```bash
+npm run dev
 ```
 
 ---
-
-## Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `AZURE_AI_ENDPOINT` | ✅ | Azure AI Foundry endpoint URL |
-| `AZURE_AI_KEY` | ✅ | Azure AI API key |
-| `AZURE_AI_MODEL` | No | Model name (default: `claude-sonnet-4-5`) |
-| `NODE_ENV` | No | `production` on server |
-| `ALLOWED_ORIGINS` | No | Comma-separated CORS origins |
-
----
-
-## Cost (Azure Student Credits)
-
-~**$0.005 per 200-link SSR audit**. Your $100 credit covers ~20,000 full audits.
-
-*Internal pre-submission review tool. Not an official NAAC document.*
+*Designed & Engineered by Zenthoriax*
