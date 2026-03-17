@@ -118,7 +118,7 @@ const upload = multer({
 /* ─── API routes ─── */
 // ─── AUTHENTICATION ROUTES (Google OAuth) ───
 app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
+    passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' })
 );
 
 app.get('/auth/google/callback',
@@ -133,7 +133,9 @@ app.get('/auth/google/callback',
 app.get('/auth/logout', (req, res) => {
     req.logout((err) => {
         if (err) console.error(err);
-        res.redirect('/login');
+        req.session.destroy(() => {
+            res.redirect('/login');
+        });
     });
 });
 
