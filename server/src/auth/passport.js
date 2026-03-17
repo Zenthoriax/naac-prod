@@ -24,7 +24,8 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "https://ssr-verifier-backend.onrender.com/auth/google/callback",
+    proxy: true
   },
   async function(accessToken, refreshToken, profile, cb) {
     try {
