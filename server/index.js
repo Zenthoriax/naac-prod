@@ -125,7 +125,7 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login?error=domain_lockdown' }),
     function(req, res) {
         // Successful authentication
-        const frontendUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5174');
+        const frontendUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5173');
         res.redirect(`${frontendUrl}/dashboard`);
     }
 );
