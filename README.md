@@ -1,4 +1,4 @@
-# Antigravity: V3.1 NAAC Forensic Auditor
+# JAIN SSR Verifier: V3.1 NAAC Forensic Auditor
 
 ## Project Overview
 The NAAC SSR Verifier (V3.1 Architecture) is a Zero-Trust forensic auditing system powered by the Groq Llama-3.3 inference engine. It is designed to empower institutional IQAC cells and pre-DVV simulations by enforcing strict quantitative arithmetic checks, domain linkage validation, and metadata drift analysis on uploaded evidence protocols.

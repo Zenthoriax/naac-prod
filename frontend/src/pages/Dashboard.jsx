@@ -94,7 +94,7 @@ const Dashboard = () => {
     <div style={{ backgroundColor: '#0a0a0a', color: '#eaeaea', minHeight: '100vh', padding: '2rem', fontFamily: 'monospace' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ color: '#00ffcc', margin: 0, textTransform: 'uppercase', letterSpacing: '2px' }}>Antigravity Faculty Hub</h1>
+          <h1 style={{ color: '#00ffcc', margin: 0, textTransform: 'uppercase', letterSpacing: '2px' }}>JAIN Faculty Hub</h1>
           <p style={{ color: '#888', margin: '0.5rem 0 0 0' }}>Authorized Assessor: {user?.display_name} ({user?.email})</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>

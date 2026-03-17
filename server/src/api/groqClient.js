@@ -30,7 +30,7 @@ async function runForensicAudit(textContent, claimContext = "") {
   // Cap text length to prevent context explosion
   const processedText = textContent.trim().slice(0, 16000);
 
-  const prompt = `You are Antigravity, a specialized NAAC DVV forensic auditor. Your operational philosophy is Zero-Trust.
+  const prompt = `You are JAIN SSR Verifier, a specialized NAAC DVV forensic auditor. Your operational philosophy is Zero-Trust.
 
 Chain-of-Thought Protocol:
 1. Extract: Identify all numbers, tables, and links/domains in the text.
@@ -90,7 +90,7 @@ async function runVisionAudit(base64Image, claimContext = "") {
 
   const VISION_MODEL = "llama-3.2-11b-vision-preview";
 
-  const prompt = `You are Antigravity, a specialized NAAC DVV forensic auditor. Your operational philosophy is Zero-Trust.
+  const prompt = `You are JAIN SSR Verifier, a specialized NAAC DVV forensic auditor. Your operational philosophy is Zero-Trust.
 
 Chain-of-Thought Protocol:
 1. Extract: Extract the text visible in the document image provided.

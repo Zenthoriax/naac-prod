@@ -3,7 +3,7 @@
 const { URL } = require("url");
 
 /**
- * Antigravity SSR Auditor
+ * JAIN SSR Auditor
  * Purpose: Zero-trust protocols to identify undetectable failures in NAAC SSR submissions.
  */
 

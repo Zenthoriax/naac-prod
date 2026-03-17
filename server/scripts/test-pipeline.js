@@ -19,7 +19,7 @@ async function runV3PipelineTest() {
         if (userCheck.rows.length === 0) {
             const botInsert = await db.query(
                 "INSERT INTO users (google_id, email, display_name) VALUES ($1, $2, $3) RETURNING id",
-                ['system_bot_id_999', 'system.bot@jainuniversity.ac.in', 'Antigravity Test Bot']
+                ['system_bot_id_999', 'system.bot@jainuniversity.ac.in', 'JAIN SSR Test Bot']
             );
             botUserId = botInsert.rows[0].id;
             console.log("✅ Provisioned System Bot in DB for test audit.");

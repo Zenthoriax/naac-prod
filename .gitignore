@@ -20,3 +20,13 @@ npm-debug.log*
 # OS Specific
 .DS_Store
 Thumbs.db
+
+# Deployment & Sample Files
+*.yaml
+*.pdf
+*.html
+
+# Internal Reports
+audit_report.md
+report.md
+ssr_compliance_guidelines.md

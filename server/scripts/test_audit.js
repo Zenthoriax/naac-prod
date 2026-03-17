@@ -3,7 +3,7 @@
 const { performAudit } = require("../src/api/auditor");
 
 async function runTests() {
-  console.log("🚀 Starting Antigravity SSR Auditor Verification...\n");
+  console.log("🚀 Starting JAIN SSR Auditor Verification...\n");
 
   const testScenarios = [
     {

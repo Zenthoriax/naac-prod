@@ -19,7 +19,7 @@ const Login = () => {
         border: '1px solid #333', padding: '3rem', borderRadius: '8px', 
         backgroundColor: '#111', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)', maxWidth: '400px', width: '100%', textAlign: 'center'
       }}>
-        <h1 style={{ color: '#00ffcc', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Antigravity</h1>
+        <h1 style={{ color: '#00ffcc', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>JAIN SSR Verifier</h1>
         <h3 style={{ color: '#888', fontWeight: 'normal', margin: '0 0 2rem 0' }}>Lead DVV Auditor System</h3>
 
         <div style={{ height: '2px', backgroundColor: '#333', margin: '2rem 0' }} />
