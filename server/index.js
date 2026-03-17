@@ -79,9 +79,12 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'fallback_secret_key',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+        secure: true,
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
 
