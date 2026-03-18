@@ -1,4 +1,7 @@
 import React, { useEffect, useState, Suspense, lazy } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Docs from './pages/Docs';
 import Auth from './pages/Auth';
 
 // Implement Code-Splitting: Only load the heavy Dashboard bundle if authenticated

@@ -116,8 +116,8 @@ export default function AuthPage() {
           >
             <span className="text-3xl">⚡</span>
           </motion.div>
-          <h1 className="gradient-text text-3xl font-bold tracking-tight">Arhat</h1>
-          <p className="text-slate-400 text-sm mt-1">Lead DVV Auditor Platform</p>
+          <h1 className="text-[#00ffcc] text-3xl font-bold tracking-tight">SSR-Verifier</h1>
+          <p className="text-slate-400 text-sm mt-1">Jain (Deemed-to-be University)</p>
         </div>
 
         {/* Mode Toggle */}
@@ -133,7 +133,7 @@ export default function AuthPage() {
                 <motion.div
                   layoutId="tab-pill"
                   className="absolute inset-0 rounded-lg"
-                  style={{ background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(109, 40, 217, 0.4))', border: '1px solid rgba(139, 92, 246, 0.4)' }}
+                  style={{ background: 'rgba(0, 255, 204, 0.1)', border: '1px solid rgba(0, 255, 204, 0.3)' }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -250,7 +250,7 @@ export default function AuthPage() {
           {isLogin ? "New here? " : "Already have an account? "}
           <button
             onClick={() => setMode(isLogin ? 'signup' : 'login')}
-            className="text-violet-400 hover:text-violet-300 transition-colors font-medium"
+            className="text-[#00ffcc] hover:text-[#00ccaa] transition-colors font-medium"
           >
             {isLogin ? 'Create an account' : 'Sign in'}
           </button>
