@@ -16,10 +16,10 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.2.1"
-  },
-  "devDependencies": {
+    "tailwindcss": "^4.2.1",
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.6"
+  },
+  "devDependencies": {
   }
 }
