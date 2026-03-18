@@ -31,6 +31,7 @@ export default function OAuthCallback() {
       try {
         setStatus('Verifying credentials...');
         localStorage.setItem('authToken', token);
+        localStorage.setItem('tokenExpiry', (Date.now() + 24*60*60*1000).toString());
         
         // Verify token and fetch user data
         const result = await authService.getCurrentUser();
