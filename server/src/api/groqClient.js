@@ -63,9 +63,8 @@ Return strictly a JSON object (no markdown, no conversational filler) matching t
     const chatCompletion = await client.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
       model: MODEL,
-      temperature: 0,
-      top_p: 0.1,
-      seed: 420,
+      temperature: 0.4,  // Allow dynamic scoring variation
+      top_p: 0.9,        // Wider vocabulary selection
       response_format: { type: "json_object" },
     });
 
@@ -103,7 +102,7 @@ Output Protocol:
 Return strictly a JSON object matching this schema (do NOT format as markdown, just raw JSON):
 {
   "verdict": "GENUINE | SUSPICIOUS | FAKE | NON-COMPLIANT",
-  "risk_score": 50,
+  "risk_score": <int 0-100 based on severity of findings>,
   "reasoning": "Detailed forensic explanation",
   "audit_findings": [
     {
