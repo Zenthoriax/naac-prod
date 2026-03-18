@@ -36,7 +36,7 @@ const Login = () => {
         )}
 
         <button 
-          onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+          onClick={() => window.location.href = '/auth/google'}
           style={{
             backgroundColor: '#00ffcc', color: '#000', border: 'none', padding: '1rem 2rem',
             fontSize: '1rem', fontWeight: 'bold', borderRadius: '4px', cursor: 'pointer',
