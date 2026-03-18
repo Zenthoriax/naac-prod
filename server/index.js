@@ -120,7 +120,7 @@ app.get('/auth/google/callback',
                     profilePhoto: req.user.profile_photo_url
                 },
                 process.env.JWT_SECRET,
-                { expiresIn: '7d' }
+                { expiresIn: '24h' }
             );
 
             const frontendUrl = process.env.FRONTEND_URL || 'https://ssr-verifier-frontend.onrender.com';
