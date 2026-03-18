@@ -7,7 +7,7 @@ const { rateLimit } = require('express-rate-limit');
 const { fromBuffer } = require('pdf2pic');
 const db = require('../src/db');
 const { runForensicAudit, runVisionAudit } = require('../src/api/groqClient');
-const { ensureAuthenticated } = require('../src/auth/middleware');
+const { verifyToken } = require('../src/auth/jwt');
 const logger = require('../src/utils/logger');
 
 // Free-Tier Limit: 10 Groq audits per hour per user
