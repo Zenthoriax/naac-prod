@@ -63,6 +63,12 @@ const Dashboard = () => {
         });
 
         const data = response.data;
+        
+        // Failsafe: If VITE_API_BASE is missing on Render, it returns the React index.html
+        if (typeof data === 'string' && data.includes('<!DOCTYPE html>')) {
+             throw new Error("Configuration Error: Frontend is missing VITE_API_BASE environment variable. It hit the React router instead of the Backend API.");
+        }
+        
         const result = data?.result || {};
         
         toast.update(scanId, { render: `Forensic analysis complete. Risk Score: ${result?.risk_score ?? 'N/A'}`, type: "success", isLoading: false, autoClose: 4000 });
@@ -151,14 +157,28 @@ const Dashboard = () => {
                     padding: '1.5rem',
                     boxShadow: lastResult.verdict === 'NON-COMPLIANT' || lastResult.verdict === 'FAKE' ? '0 0 20px rgba(255, 68, 68, 0.2)' : 'none'
                 }}>
-                    <h2 style={{ 
-                        color: lastResult.verdict === 'GENUINE' ? '#00ffcc' : lastResult.verdict === 'NON-COMPLIANT' || lastResult.verdict === 'FAKE' ? '#ff4444' : '#ffaa00', 
-                        marginTop: 0,
-                        textShadow: lastResult.verdict === 'NON-COMPLIANT' || lastResult.verdict === 'FAKE' ? '0 0 10px rgba(255, 68, 68, 0.5)' : 'none'
-                    }}>
-                        {lastResult.verdict === 'FAKE' ? 'CRITICAL NAAC REJECTION - FAKE EVIDENCE DECTECTED' : lastResult.verdict} // RISK SCORE: {lastResult.risk_score}/100
-                    </h2>
-                    <p style={{ color: '#ccc', lineHeight: '1.6' }}>{lastResult.reasoning}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h2 style={{ 
+                            color: lastResult.verdict === 'GENUINE' ? '#00ffcc' : lastResult.verdict === 'NON-COMPLIANT' || lastResult.verdict === 'FAKE' ? '#ff4444' : '#ffaa00', 
+                            margin: 0,
+                            textShadow: lastResult.verdict === 'NON-COMPLIANT' || lastResult.verdict === 'FAKE' ? '0 0 10px rgba(255, 68, 68, 0.5)' : 'none'
+                        }}>
+                            {lastResult.verdict === 'FAKE' ? 'CRITICAL NAAC REJECTION - FAKE EVIDENCE DETECTED' : lastResult.verdict}
+                        </h2>
+                        <span style={{ backgroundColor: '#333', padding: '0.4rem 0.8rem', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                            RISK SCORE: <span style={{ color: lastResult.risk_score > 50 ? '#ff4444' : lastResult.risk_score > 20 ? '#ffaa00' : '#00ffcc' }}>{lastResult.risk_score}/100</span>
+                        </span>
+                    </div>
+                    
+                    <h4 style={{ color: '#aaa', margin: '0 0 0.5rem 0', textTransform: 'uppercase', fontSize: '0.85rem' }}>Auditor Assessment:</h4>
+                    <p style={{ color: '#ccc', lineHeight: '1.6', marginTop: 0 }}>{lastResult.reasoning}</p>
+                    
+                    {lastResult.naac_action_required && (
+                        <div style={{ marginTop: '1rem', backgroundColor: '#0a0a0a', borderLeft: '3px solid #00ccff', padding: '1rem' }}>
+                            <strong style={{ color: '#00ccff', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', fontSize: '0.85rem' }}>Action Required:</strong>
+                            <span style={{ color: '#eaeaea' }}>{lastResult.naac_action_required}</span>
+                        </div>
+                    )}
                     
                     {lastResult.audit_findings && lastResult.audit_findings.length > 0 && (
                        <div style={{ marginTop: '1.5rem' }}>
@@ -167,10 +187,18 @@ const Dashboard = () => {
                                <div key={i} style={{ 
                                    backgroundColor: '#0a0a0a', 
                                    padding: '1rem', 
-                                   marginBottom: '0.5rem', 
+                                   marginBottom: '0.75rem', 
                                    borderLeft: `3px solid ${f.severity === 'CRITICAL' ? '#ff4444' : f.severity === 'WARNING' ? '#ffaa00' : '#444'}` 
                                }}>
-                                   <strong style={{ color: f.severity === 'CRITICAL' ? '#ff4444' : '#ffaa00' }}>[{f.severity}]</strong> {f.reasoning}
+                                   <div style={{ marginBottom: '0.25rem' }}>
+                                       <strong style={{ color: f.severity === 'CRITICAL' ? '#ff4444' : f.severity === 'WARNING' ? '#ffaa00' : '#888' }}>[{f.severity}]</strong>
+                                       <span style={{ marginLeft: '0.5rem', color: '#eaeaea' }}>{f.reasoning}</span>
+                                   </div>
+                                   {f.evidence_location && (
+                                       <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem' }}>
+                                           <strong>Location: </strong> Page {f.evidence_location.page || 'N/A'}, {f.evidence_location.line || 'Unknown'}
+                                       </div>
+                                   )}
                                </div>
                            ))}
                        </div>
