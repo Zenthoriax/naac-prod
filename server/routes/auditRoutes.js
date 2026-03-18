@@ -54,8 +54,13 @@ router.post('/', verifyToken, groqLimiter, upload.single('document'), async (req
         if (file) {
             originalName = file.originalname;
             if (file.mimetype === 'application/pdf') {
-                const pdfData = await pdfParse(file.buffer);
-                textContent = pdfData.text;
+                try {
+                    const pdfData = await pdfParse(file.buffer);
+                    textContent = pdfData.text;
+                } catch (parseErr) {
+                    logger.warn(`[AUDIT] pdf-parse failed on ${originalName}. Will attempt Vision fallback. Error: ${parseErr.message}`);
+                    textContent = ""; // Force fallback
+                }
             } else {
                 textContent = file.buffer.toString('utf8');
             }
