@@ -111,7 +111,9 @@ export default function AuthPage() {
           >
             <span className="text-3xl">⚡</span>
           </motion.div>
-          <h1 className="text-[#00ffcc] text-3xl font-bold tracking-tight">SSR-Verifier</h1>
+          <h1 className="text-[#00ffcc] text-3xl font-bold tracking-tight">
+            {isLogin ? 'Sign In' : 'Sign Up'}
+          </h1>
           <p className="text-slate-400 text-sm mt-1">Jain (Deemed-to-be University)</p>
         </div>
 
@@ -234,7 +236,7 @@ export default function AuthPage() {
                   {isLogin ? 'Signing in...' : 'Creating Account...'}
                 </span>
               ) : (
-                isLogin ? 'Sign In to Arhat' : 'Create Account'
+                isLogin ? 'Sign In' : 'Create Account'
               )}
             </motion.button>
           </motion.form>

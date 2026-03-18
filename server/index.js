@@ -125,21 +125,29 @@ app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' })
 );
 
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login?error=domain_lockdown' }),
-    function(req, res) {
-        // Successful authentication
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-        const host = req.headers['x-forwarded-host'] || req.headers.host;
-        const fallbackUrl = `${protocol}://${host}`;
+app.get('/auth/google/callback', (req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const fallbackUrl = `${protocol}://${host}`;
 
-        const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
-            ? process.env.FRONTEND_URL 
-            : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
-        
-        res.redirect(`${frontendUrl}/dashboard`);
-    }
-);
+    const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
+        ? process.env.FRONTEND_URL 
+        : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
+
+    passport.authenticate('google', { 
+        failureRedirect: `${frontendUrl}/login?error=google_failed` 
+    })(req, res, next);
+}, function(req, res) {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const fallbackUrl = `${protocol}://${host}`;
+
+    const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
+        ? process.env.FRONTEND_URL 
+        : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
+    
+    res.redirect(`${frontendUrl}/dashboard`);
+});
 
 app.get('/auth/logout', (req, res) => {
     req.logout((err) => {
