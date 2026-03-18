@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 // Forensic Audit POST Route
-router.post('/', ensureAuthenticated, groqLimiter, upload.single('document'), async (req, res) => {
+router.post('/', verifyToken, groqLimiter, upload.single('document'), async (req, res) => {
     try {
         const { error } = auditSchema.validate(req.body);
         if (error) {
