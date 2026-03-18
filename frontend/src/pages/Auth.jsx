@@ -256,12 +256,7 @@ export default function AuthPage() {
           </button>
         </p>
 
-        {/* Jain University notice */}
-        <div className="mt-6 p-3 rounded-xl text-center" style={{ background: 'rgba(251, 191, 36, 0.06)', border: '1px solid rgba(251, 191, 36, 0.15)' }}>
-          <p className="text-amber-400/80 text-xs">
-            🎓 Use your <span className="font-semibold text-amber-400">@jainuniversity.ac.in</span> email for enhanced faculty privileges
-          </p>
-        </div>
+      
       </motion.div>
     </div>
   );
