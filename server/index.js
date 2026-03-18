@@ -89,16 +89,17 @@ app.use(session({
     }
 }));
 
-// Debug logging for sessions
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Debug logging for sessions (Moved after Passport)
 app.use((req, res, next) => {
     if (req.url.startsWith('/api/') || req.url.startsWith('/auth/')) {
-        console.log(`[Session Debug] ${req.method} ${req.url} - sid: ${req.sessionID} - auth: ${req.isAuthenticated()}`);
+        const isAuth = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
+        console.log(`[Session Debug] ${req.method} ${req.url} - sid: ${req.sessionID} - auth: ${isAuth}`);
     }
     next();
 });
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 /* ─── Rate limiters ─── */
 const apiLimiter = rateLimit({
