@@ -64,9 +64,9 @@ const Dashboard = () => {
 
         const data = response.data;
         
-        // Failsafe: If VITE_API_BASE is missing on Render, it returns the React index.html
-        if (typeof data === 'string' && data.includes('<!DOCTYPE html>')) {
-             throw new Error("Configuration Error: Frontend is missing VITE_API_BASE environment variable. It hit the React router instead of the Backend API.");
+        // Failsafe: If VITE_API_BASE is missing on Render, POST requests return an empty string or index.html instead of JSON.
+        if (typeof data === 'string') {
+             throw new Error("Configuration Error: Frontend is missing VITE_API_BASE. If you already set it in Render, you MUST click 'Manual Deploy -> Clear Build Cache & Deploy' because Vite bakes in environment variables at build-time.");
         }
         
         const result = data?.result || {};
