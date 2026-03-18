@@ -68,7 +68,7 @@ export default function AuthPage() {
   };
 
   const handleGoogle = () => {
-    window.location.href = '/auth/google';
+    window.location.href = `${API_BASE}/auth/google`;
   };
 
   const particles = [

@@ -61,9 +61,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error("CORS: origin not allowed"));
   },
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
-  credentials: false,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 app.options("*", cors());
 
@@ -129,9 +128,14 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login?error=domain_lockdown' }),
     function(req, res) {
         // Successful authentication
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.headers['x-forwarded-host'] || req.headers.host;
+        const fallbackUrl = `${protocol}://${host}`;
+
         const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
             ? process.env.FRONTEND_URL 
-            : (req.hostname === 'localhost' ? 'http://localhost:5173' : '');
+            : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
+        
         res.redirect(`${frontendUrl}/dashboard`);
     }
 );

@@ -12,11 +12,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     // 1. Fetch Auth Session
-    // 1. Fetch Auth Session
     const authToast = toast.loading("Authenticating secure session...");
     fetch(`${API_BASE}/api/auth/session`, { credentials: 'include' })
       .then(async (res) => {
-          if (!res.ok && res.status !== 401) throw new Error("Network error");
+          const isJson = res.headers.get('content-type')?.includes('application/json');
+          if (!res.ok && res.status !== 401) {
+              const text = await res.text();
+              throw new Error(`Server error (${res.status}): ${text.substring(0, 50)}`);
+          }
+          if (!isJson) throw new Error("Server did not return JSON. Check if backend is running.");
           return res.json();
       })
       .then(data => {
@@ -24,7 +28,7 @@ const Dashboard = () => {
             toast.update(authToast, { render: "Session expired. Redirecting...", type: "error", isLoading: false, autoClose: 2000 });
             setTimeout(() => window.location.href = '/login', 2000);
         } else {
-            toast.update(authToast, { render: "Session verified.", type: "success", isLoading: false, autoClose: 1000 });
+            toast.update(authToast, { render: `Access Granted: ${data.user.display_name}`, type: "success", isLoading: false, autoClose: 1000 });
             setUser(data.user);
             fetchHistory();
         }
