@@ -74,20 +74,28 @@ app.use(express.urlencoded({ extended: true })); // Added from edit
 // Setup Session for Passport with Postgres Store
 app.use(session({
     store: new pgSession({
-        pool: db.getPool(), // Connection pool
-        tableName: 'session' // Use another table-name than the default "session" one
+        pool: db.getPool(),
+        tableName: 'session'
     }),
     secret: process.env.SESSION_SECRET || 'fallback_secret_key',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Set to true to ensure session is refreshed
+    saveUninitialized: true, // Save empty sessions to ensure cookie is set
     proxy: true,
     cookie: {
-        secure: IS_PROD, // true in prod
+        secure: true, // Render is HTTPS
         httpOnly: true,
-        sameSite: IS_PROD ? 'none' : 'lax', // Use none for cross-site cookie if needed, but relative should work with lax
+        sameSite: 'lax', // Use 'lax' for better same-site performance
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
+
+// Debug logging for sessions
+app.use((req, res, next) => {
+    if (req.url.startsWith('/api/') || req.url.startsWith('/auth/')) {
+        console.log(`[Session Debug] ${req.method} ${req.url} - sid: ${req.sessionID} - auth: ${req.isAuthenticated()}`);
+    }
+    next();
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
