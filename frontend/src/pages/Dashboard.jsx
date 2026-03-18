@@ -63,9 +63,10 @@ const Dashboard = () => {
         });
 
         const data = response.data;
+        const result = data?.result || {};
         
-        toast.update(scanId, { render: `Forensic analysis complete. Risk Score: ${data.result.risk_score}`, type: "success", isLoading: false, autoClose: 4000 });
-        setLastResult(data.result);
+        toast.update(scanId, { render: `Forensic analysis complete. Risk Score: ${result?.risk_score ?? 'N/A'}`, type: "success", isLoading: false, autoClose: 4000 });
+        setLastResult(result);
         setUploadState('result');
         // Refresh telemetry
         fetchHistory();
