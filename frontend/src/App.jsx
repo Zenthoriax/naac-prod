@@ -1,8 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Docs from './pages/Docs';
-import Auth from './pages/Auth';
+import OAuthCallback from './pages/OAuthCallback';
 
 // Implement Code-Splitting: Only load the heavy Dashboard bundle if authenticated
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -22,6 +18,10 @@ export default function App() {
 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  if (currentPath.startsWith('/auth/callback')) {
+    return <OAuthCallback />;
+  }
 
   if (currentPath.startsWith('/dashboard')) {
     return (

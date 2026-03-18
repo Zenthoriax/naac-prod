@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+import { authService } from '../services/authService';
+import apiClient from '../services/authService';
 
 const Dashboard = () => {
   const [history, setHistory] = useState([]);
@@ -11,27 +9,14 @@ const Dashboard = () => {
   const [lastResult, setLastResult] = useState(null);
 
   useEffect(() => {
-    // 1. Fetch Auth Session
+    // 1. Fetch Auth Session using JWT
     const authToast = toast.loading("Authenticating secure session...");
-    fetch(`${API_BASE}/api/auth/session`, { credentials: 'include' })
-      .then(async (res) => {
-          const isJson = res.headers.get('content-type')?.includes('application/json');
-          if (!res.ok && res.status !== 401) {
-              const text = await res.text();
-              throw new Error(`Server error (${res.status}): ${text.substring(0, 50)}`);
-          }
-          if (!isJson) throw new Error("Server did not return JSON. Check if backend is running.");
-          return res.json();
-      })
-      .then(data => {
-        if (!data.authenticated) {
-            toast.update(authToast, { render: "Session expired. Redirecting...", type: "error", isLoading: false, autoClose: 2000 });
-            setTimeout(() => window.location.href = '/login', 2000);
-        } else {
-            toast.update(authToast, { render: `Access Granted: ${data.user.display_name}`, type: "success", isLoading: false, autoClose: 1000 });
-            setUser(data.user);
-            fetchHistory();
-        }
+    
+    authService.getCurrentUser()
+      .then(userData => {
+          toast.update(authToast, { render: `Access Granted: ${userData.display_name}`, type: "success", isLoading: false, autoClose: 1000 });
+          setUser(userData);
+          fetchHistory();
       })
       .catch((e) => {
           console.error("Dashboard Session Error:", e);
@@ -42,10 +27,9 @@ const Dashboard = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/audit/history`, { credentials: 'include' });
-      const data = await res.json();
-      if (data.history) {
-        setHistory(data.history);
+      const res = await apiClient.get('/api/audit/history');
+      if (res.data.history) {
+        setHistory(res.data.history);
       }
     } catch (e) {
       toast.error("Failed to sync Neon Postgres telemetry.");
@@ -69,23 +53,12 @@ const Dashboard = () => {
     formData.append('claimContext', 'Faculty Dashboard Upload');
 
     try {
-        const response = await fetch(`${API_BASE}/api/audit`, {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
+        const response = await apiClient.post('/api/audit', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
 
-        const data = await response.json();
+        const data = response.data;
         
-        if (!response.ok) {
-            if (response.status === 429) {
-                toast.update(scanId, { render: data.error, type: "warning", isLoading: false, autoClose: 8000 });
-                setUploadState('idle');
-                return;
-            }
-            throw new Error(data.error || "Failed to process document.");
-        }
-
         toast.update(scanId, { render: `Forensic analysis complete. Risk Score: ${data.result.risk_score}`, type: "success", isLoading: false, autoClose: 4000 });
         setLastResult(data.result);
         setUploadState('result');
@@ -94,8 +67,9 @@ const Dashboard = () => {
 
     } catch (err) {
         console.error(err);
-        toast.update(scanId, { render: err.message, type: "error", isLoading: false, autoClose: 5000 });
-        setLastResult({ error: err.message });
+        const errorMsg = err.response?.data?.error || err.message;
+        toast.update(scanId, { render: errorMsg, type: "error", isLoading: false, autoClose: 5000 });
+        setLastResult({ error: errorMsg });
         setUploadState('error');
     }
   };
@@ -117,7 +91,7 @@ const Dashboard = () => {
             Documentation
           </button>
           <button 
-            onClick={() => window.location.href = '/auth/logout'}
+            onClick={() => authService.logout()}
             style={{ backgroundColor: 'transparent', color: '#ff4444', border: '1px solid #ff4444', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: 'monospace', textTransform: 'uppercase' }}
           >
             Terminate Session

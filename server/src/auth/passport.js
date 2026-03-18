@@ -4,24 +4,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 
-// Serialize user into the session
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
+// No session serialization needed for JWT-based auth
 
-// Deserialize user from the session using Neon Postgres
-passport.deserializeUser(async (id, done) => {
-  try {
-    const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-    if (rows.length > 0) {
-      done(null, rows[0]);
-    } else {
-      done(null, false);
-    }
-  } catch (err) {
-    done(err, null);
-  }
-});
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,

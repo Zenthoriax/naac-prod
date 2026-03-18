@@ -24,6 +24,9 @@ const healthRoute  = require("./src/api/health"); // Keep healthRoute
 const auditorHandler = require('./src/api/auditor'); // This replaces the old auditRoute
 const auditRoutesV3 = require('./routes/auditRoutes');
 
+const jwt = require('jsonwebtoken');
+const { verifyToken } = require('./src/auth/jwt');
+
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
 const DIST = path.join(__dirname, "../frontend/dist");
@@ -50,39 +53,19 @@ app.use(helmet({
 }));
 
 /* ─── CORS ─── */
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map(s => s.trim()).filter(Boolean)
-  : [];
-
 app.use(cors({
-  origin: 'https://ssr-verifier-frontend.onrender.com',
-  credentials: true,
+  origin: process.env.FRONTEND_URL || 'https://ssr-verifier-frontend.onrender.com',
+  credentials: false, // Not needed for JWT
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.options("*", cors());
 
 /* ─── Body parsing ─── */
 app.use(express.json({ limit: "512kb" }));
-app.use(express.urlencoded({ extended: true })); // Added from edit
-
-app.use(session({
-    store: new pgSession({
-        pool: db.getPool(),
-        tableName: 'session'
-    }),
-    secret: process.env.SESSION_SECRET || 'fallback_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-        secure: true,      // Must be true for HTTPS
-        httpOnly: true,
-        sameSite: 'none',  // Changed to 'none' for cross-domain fixes
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
-app.use(passport.session());
 
 /* ─── Rate limiters ─── */
 const apiLimiter = rateLimit({
@@ -114,40 +97,45 @@ const upload = multer({
 /* ─── API routes ─── */
 // ─── AUTHENTICATION ROUTES (Google OAuth) ───
 app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' })
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'], 
+        prompt: 'select_account',
+        session: false 
+    })
 );
 
-app.get('/auth/google/callback', (req, res, next) => {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const fallbackUrl = `${protocol}://${host}`;
-
-    const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
-        ? process.env.FRONTEND_URL 
-        : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
-
+app.get('/auth/google/callback', 
     passport.authenticate('google', { 
-        failureRedirect: `${frontendUrl}/login?error=google_failed` 
-    })(req, res, next);
-}, function(req, res) {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const fallbackUrl = `${protocol}://${host}`;
+        session: false,
+        failureRedirect: `${process.env.FRONTEND_URL || 'https://ssr-verifier-frontend.onrender.com'}/login?error=google_failed` 
+    }), 
+    function(req, res) {
+        try {
+            // Generate JWT token
+            const token = jwt.sign(
+                { 
+                    id: req.user.id,
+                    email: req.user.email,
+                    displayName: req.user.display_name,
+                    profilePhoto: req.user.profile_photo_url
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' }
+            );
 
-    const frontendUrl = process.env.FRONTEND_URL && process.env.FRONTEND_URL !== 'http://localhost:5173' 
-        ? process.env.FRONTEND_URL 
-        : (req.hostname === 'localhost' ? 'http://localhost:5173' : fallbackUrl);
-    
-    res.redirect(`${frontendUrl}/dashboard`);
-});
+            const frontendUrl = process.env.FRONTEND_URL || 'https://ssr-verifier-frontend.onrender.com';
+            res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+        } catch (error) {
+            console.error('JWT generation error:', error);
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=token_failed`);
+        }
+    }
+);
 
 app.get('/auth/logout', (req, res) => {
-    req.logout((err) => {
-        if (err) console.error(err);
-        req.session.destroy(() => {
-            res.redirect('/login');
-        });
-    });
+    // With JWT, logout is mostly handled on frontend by clearing token.
+    // We just redirect here.
+    res.redirect('/login');
 });
 
 // ─── LOCAL AUTHENTICATION ROUTES ───
@@ -158,7 +146,6 @@ app.post('/auth/signup', async (req, res) => {
             return res.status(400).json({ error: 'Email and password are required' });
         }
         
-        // Check if user exists
         const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         if (rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
@@ -174,10 +161,13 @@ app.post('/auth/signup', async (req, res) => {
         const newRes = await db.query(insertQuery, [email, passwordHash, displayName || email.split('@')[0]]);
         const newUser = newRes.rows[0];
         
-        req.login(newUser, (err) => {
-            if (err) return res.status(500).json({ error: 'Auto-login failed after signup' });
-            return res.json({ success: true, user: newUser });
-        });
+        const token = jwt.sign(
+            { id: newUser.id, email: newUser.email, displayName: newUser.display_name },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        return res.json({ success: true, user: newUser, token });
     } catch (err) {
         logger.error(`[Signup Error] ${err.message}`);
         res.status(500).json({ error: 'Internal server error during signup' });
@@ -185,30 +175,48 @@ app.post('/auth/signup', async (req, res) => {
 });
 
 app.post('/auth/login', 
-    passport.authenticate('local', { failWithError: true }),
+    passport.authenticate('local', { session: false, failWithError: true }),
     (req, res) => {
-        res.json({ success: true, user: req.user });
+        const token = jwt.sign(
+            { id: req.user.id, email: req.user.email, displayName: req.user.display_name },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        res.json({ success: true, user: req.user, token });
     },
     (err, req, res, next) => {
         res.status(401).json({ error: 'Invalid email or password' });
     }
 );
 
-app.get('/auth/user', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
-    } else {
-        res.status(401).json({ authenticated: false });
+app.get('/auth/user', verifyToken, async (req, res) => {
+    try {
+        const { rows } = await db.query('SELECT id, email, display_name, profile_photo_url FROM users WHERE id = $1', [req.user.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ authenticated: true, user: rows[0] });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-app.get('/api/auth/session', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
-    } else {
-        res.status(401).json({ authenticated: false });
+app.get('/api/auth/session', verifyToken, async (req, res) => {
+    try {
+        const { rows } = await db.query('SELECT id, email, display_name, profile_photo_url FROM users WHERE id = $1', [req.user.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ authenticated: true, user: rows[0] });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.post('/api/verify-token', verifyToken, (req, res) => {
+    res.json({ valid: true, user: req.user });
+});
+
 
 // ─── CORE V3 API ROUTES ───
 app.use('/api/audit', auditRoutesV3); // Mount the new Groq AI pipeline

@@ -22,6 +22,7 @@ const Particle = ({ style }) => (
     style={style}
   />
 );
+import { authService } from '../services/authService';
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
@@ -35,20 +36,19 @@ export default function AuthPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const endpoint = isLogin ? '/auth/login' : '/auth/signup';
     try {
-      const payload = isLogin
-        ? { email, password }
-        : { email, password, displayName };
-
-      await axios.post(`${API_BASE}${endpoint}`, payload, { withCredentials: true });
+      if (isLogin) {
+          await authService.login({ email, password });
+      } else {
+          await authService.signup({ email, password, displayName });
+      }
+      
       toast.success(isLogin ? '🎉 Login Successful!' : '🚀 Account Created!', {
         style: {
           background: '#1a1a2e',
           color: '#e2e8f0',
-          border: '1px solid rgba(139, 92, 246, 0.4)',
+          border: '1px solid #00ffcc',
         },
-        iconTheme: { primary: '#8b5cf6', secondary: '#ffffff' },
       });
       setTimeout(() => {
         window.location.href = '/dashboard';
@@ -59,7 +59,7 @@ export default function AuthPage() {
         style: {
           background: '#1a1a2e',
           color: '#e2e8f0',
-          border: '1px solid rgba(239, 68, 68, 0.4)',
+          border: '1px solid #ef4444',
         },
       });
     } finally {
@@ -68,10 +68,7 @@ export default function AuthPage() {
   };
 
   const handleGoogle = () => {
-    // Clear any old, broken session data first
-    localStorage.removeItem('user'); 
-    // Direct redirect to the backend
-    window.location.href = `${API_BASE}/auth/google`;
+    authService.loginWithGoogle();
   };
 
   const particles = [

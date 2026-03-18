@@ -141,7 +141,7 @@ router.post('/', ensureAuthenticated, groqLimiter, upload.single('document'), as
 });
 
 // History Route for the Dashboard
-router.get('/history', ensureAuthenticated, async (req, res) => {
+router.get('/history', verifyToken, async (req, res) => {
     try {
         const { rows } = await db.query(
             'SELECT id, target_url, verdict, risk_score, created_at FROM naac_audits WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50',
