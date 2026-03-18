@@ -1,8 +1,5 @@
 import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Login from './pages/Login';
-import Docs from './pages/Docs';
+import Auth from './pages/Auth';
 
 // Implement Code-Splitting: Only load the heavy Dashboard bundle if authenticated
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -47,11 +44,6 @@ export default function App() {
     );
   }
   
-  // Default to Login for any other route
-  return (
-    <>
-      <Login />
-      <ToastContainer theme="dark" position="bottom-right" />
-    </>
-  );
+  // Default to Auth (Login/Signup) for any other route
+  return <Auth />;
 }
