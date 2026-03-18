@@ -1,3 +1,34 @@
+"use strict";
+
+require("dotenv").config();
+
+const path    = require("path");
+const fs      = require("fs");
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const { rateLimit } = require('express-rate-limit');
+const multer  = require("multer"); 
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session); // Add connect-pg-simple
+const passport = require('./src/auth/passport');
+const db = require('./src/db'); // Require db pool
+const logger = require('./src/utils/logger'); // Structured Logger
+const bcrypt = require('bcryptjs'); // For local auth
+
+// Import routes
+const verifyRoute = require('./src/api/verify');
+const extractRoute = require("./src/api/extract"); // Keep extractRoute
+const reportRoute  = require("./src/api/report"); // Keep reportRoute
+const healthRoute  = require("./src/api/health"); // Keep healthRoute
+const auditorHandler = require('./src/api/auditor'); // This replaces the old auditRoute
+const auditRoutesV3 = require('./routes/auditRoutes');
+
+const app = express();
+const PORT = parseInt(process.env.PORT || "3000", 10);
+const DIST = path.join(__dirname, "../frontend/dist");
+const IS_PROD = process.env.NODE_ENV === "production";
+
 /* ─── Trust proxy (Render sits behind a proxy) ─── */
 app.set("trust proxy", 1);
 
