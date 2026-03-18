@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+const API_BASE = import.meta.env.VITE_API_BASE || '';
+
 const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [user, setUser] = useState(null);
@@ -10,9 +12,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     // 1. Fetch Auth Session
+    // 1. Fetch Auth Session
     const authToast = toast.loading("Authenticating secure session...");
-    fetch('/api/auth/session')
-      .then(res => res.json())
+    fetch(`${API_BASE}/api/auth/session`, { credentials: 'include' })
+      .then(async (res) => {
+          if (!res.ok && res.status !== 401) throw new Error("Network error");
+          return res.json();
+      })
       .then(data => {
         if (!data.authenticated) {
             toast.update(authToast, { render: "Session expired. Redirecting...", type: "error", isLoading: false, autoClose: 2000 });
@@ -31,7 +37,7 @@ const Dashboard = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('/api/audit/history');
+      const res = await fetch(`${API_BASE}/api/audit/history`, { credentials: 'include' });
       const data = await res.json();
       if (data.history) {
         setHistory(data.history);
@@ -58,9 +64,10 @@ const Dashboard = () => {
     formData.append('claimContext', 'Faculty Dashboard Upload');
 
     try {
-        const response = await fetch('/api/audit', {
+        const response = await fetch(`${API_BASE}/api/audit`, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'include'
         });
 
         const data = await response.json();
