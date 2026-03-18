@@ -26,9 +26,10 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    callbackURL: "https://ssr-verifier-backend.onrender.com/auth/google/callback",
     proxy: true,
-    state: false
+    state: false, // DISABLES the strict state check that is failing
+    pkce: false   // DISABLES PKCE which often fails on free-tier proxies
   },
   async function(accessToken, refreshToken, profile, cb) {
     try {

@@ -71,20 +71,19 @@ app.options("*", cors());
 app.use(express.json({ limit: "512kb" }));
 app.use(express.urlencoded({ extended: true })); // Added from edit
 
-// Setup Session for Passport with Postgres Store
 app.use(session({
     store: new pgSession({
         pool: db.getPool(),
         tableName: 'session'
     }),
     secret: process.env.SESSION_SECRET || 'fallback_secret_key',
-    resave: true, // Set to true to ensure session is refreshed
-    saveUninitialized: true, // Save empty sessions to ensure cookie is set
+    resave: false,
+    saveUninitialized: false,
     proxy: true,
     cookie: {
-        secure: true, // Render is HTTPS
+        secure: true,      // Must be true for HTTPS
         httpOnly: true,
-        sameSite: 'lax', // Use 'lax' for better same-site performance
+        sameSite: 'none',  // Changed from 'lax' to 'none' for cross-domain fixes
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));

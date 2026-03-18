@@ -68,6 +68,9 @@ export default function AuthPage() {
   };
 
   const handleGoogle = () => {
+    // Clear any old, broken session data first
+    localStorage.removeItem('user'); 
+    // Direct redirect to the backend
     window.location.href = `${API_BASE}/auth/google`;
   };
 
