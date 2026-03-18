@@ -236,8 +236,8 @@ if (fs.existsSync(DIST)) {
     lastModified: true,
     index:        false,
   }));
-  // SPA fallback — everything that isn't /api/* serves index.html
-  app.get(/^(?!\/api).*$/, (_req, res) => {
+  // SPA fallback — everything that isn't /api/* or /auth/* serves index.html
+  app.get(/^(?!\/(api|auth)).*$/, (_req, res) => {
     res.sendFile(path.join(DIST, "index.html"));
   });
 } else {
