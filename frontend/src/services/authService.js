@@ -23,6 +23,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('tokenExpiry');
       localStorage.removeItem('user');
       // Only redirect if we're not already on the login page
       if (window.location.pathname !== '/login') {
@@ -46,6 +47,7 @@ export const authService = {
     const response = await apiClient.post('/auth/signup', payload);
     if (response.data.token) {
       localStorage.setItem('authToken', response.data.token);
+      localStorage.setItem('tokenExpiry', (Date.now() + 24*60*60*1000).toString());
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
@@ -56,6 +58,7 @@ export const authService = {
     const response = await apiClient.post('/auth/login', payload);
     if (response.data.token) {
       localStorage.setItem('authToken', response.data.token);
+      localStorage.setItem('tokenExpiry', (Date.now() + 24*60*60*1000).toString());
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
@@ -76,6 +79,7 @@ export const authService = {
   // Logout
   logout() {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('tokenExpiry');
     localStorage.removeItem('user');
     window.location.href = '/login';
   },
