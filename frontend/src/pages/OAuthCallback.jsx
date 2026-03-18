@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../services/authService';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 export default function OAuthCallback() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [status, setStatus] = useState('Authenticating...');
 
   useEffect(() => {
     const handleCallback = async () => {
+      const searchParams = new URLSearchParams(window.location.search);
       const token = searchParams.get('token');
       const error = searchParams.get('error');
 
@@ -18,7 +16,7 @@ export default function OAuthCallback() {
         toast.error(`Authentication failed: ${error}`, {
           style: { background: '#1a1a2e', color: '#e2e8f0', border: '1px solid #ef4444' }
         });
-        navigate('/login');
+        window.location.href = '/login';
         return;
       }
 
@@ -26,7 +24,7 @@ export default function OAuthCallback() {
         toast.error('No authentication token received', {
           style: { background: '#1a1a2e', color: '#e2e8f0', border: '1px solid #ef4444' }
         });
-        navigate('/login');
+        window.location.href = '/login';
         return;
       }
 
@@ -43,7 +41,9 @@ export default function OAuthCallback() {
         });
         
         setStatus('Success! Redirecting...');
-        setTimeout(() => navigate('/dashboard'), 500);
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
         
       } catch (error) {
         console.error('OAuth callback error:', error);
@@ -51,12 +51,12 @@ export default function OAuthCallback() {
         toast.error('Verification failed. Please try again.', {
           style: { background: '#1a1a2e', color: '#e2e8f0', border: '1px solid #ef4444' }
         });
-        navigate('/login');
+        window.location.href = '/login';
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#000000]">
