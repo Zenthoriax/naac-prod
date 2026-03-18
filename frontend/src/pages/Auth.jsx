@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+import { authService } from '../services/authService';
 
 // Google SVG Icon
 const GoogleIcon = () => (
@@ -22,7 +20,7 @@ const Particle = ({ style }) => (
     style={style}
   />
 );
-import { authService } from '../services/authService';
+
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'signup'

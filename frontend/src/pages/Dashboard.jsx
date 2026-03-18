@@ -16,8 +16,11 @@ const Dashboard = () => {
     
     authService.getCurrentUser()
       .then(userData => {
-          toast.update(authToast, { render: `Access Granted: ${userData.display_name}`, type: "success", isLoading: false, autoClose: 1000 });
-          setUser(userData);
+          // Normalize: backend may return display_name (DB) or displayName (JWT)
+          const displayName = userData?.display_name || userData?.displayName || userData?.email || 'User';
+          const normalizedUser = { ...userData, display_name: displayName };
+          toast.update(authToast, { render: `Access Granted: ${displayName}`, type: "success", isLoading: false, autoClose: 1000 });
+          setUser(normalizedUser);
           fetchHistory();
       })
       .catch((e) => {
@@ -83,7 +86,7 @@ const Dashboard = () => {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ color: '#00ffcc', margin: 0, textTransform: 'uppercase', letterSpacing: '2px' }}>JAIN Faculty Hub</h1>
-          <p style={{ color: '#888', margin: '0.5rem 0 0 0' }}>Authorized Assessor: {user?.display_name} ({user?.email})</p>
+          <p style={{ color: '#888', margin: '0.5rem 0 0 0' }}>Authorized Assessor: {user?.display_name || user?.email || 'User'} ({user?.email})</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button 

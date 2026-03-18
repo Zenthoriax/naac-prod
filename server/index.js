@@ -189,16 +189,40 @@ app.post('/auth/login',
     }
 );
 
+// Legacy route (kept for backward compat)
 app.get('/auth/user', verifyToken, async (req, res) => {
     try {
         const { rows } = await db.query('SELECT id, email, display_name, profile_photo_url FROM users WHERE id = $1', [req.user.id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
         res.json({ authenticated: true, user: rows[0] });
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+// New /api-prefixed route (current)
+app.get('/api/auth/user', verifyToken, async (req, res) => {
+    try {
+        const { rows } = await db.query('SELECT id, email, display_name, profile_photo_url FROM users WHERE id = $1', [req.user.id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        const u = rows[0];
+        res.json({ 
+            authenticated: true, 
+            user: {
+                id: u.id,
+                email: u.email,
+                display_name: u.display_name || u.email,
+                profile_photo_url: u.profile_photo_url || ''
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Verify endpoint (used by OAuthCallback)
+app.post('/api/verify-token', verifyToken, (req, res) => {
+    res.json({ valid: true, user: req.user });
 });
 
 app.get('/api/auth/session', verifyToken, async (req, res) => {
