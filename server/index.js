@@ -14,6 +14,7 @@ const pgSession = require('connect-pg-simple')(session); // Add connect-pg-simpl
 const passport = require('./src/auth/passport');
 const db = require('./src/db'); // Require db pool
 const logger = require('./src/utils/logger'); // Structured Logger
+const bcrypt = require('bcryptjs'); // For local auth
 
 // Import routes
 const verifyRoute = require('./src/api/verify');
@@ -142,6 +143,58 @@ app.get('/auth/logout', (req, res) => {
             res.redirect('/login');
         });
     });
+});
+
+// ─── LOCAL AUTHENTICATION ROUTES ───
+app.post('/auth/signup', async (req, res) => {
+    try {
+        const { email, password, displayName } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+        
+        // Check if user exists
+        const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (rows.length > 0) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+        
+        const salt = await bcrypt.genSalt(12);
+        const passwordHash = await bcrypt.hash(password, salt);
+        
+        const insertQuery = `
+          INSERT INTO users (email, password_hash, display_name)
+          VALUES ($1, $2, $3) RETURNING *
+        `;
+        const newRes = await db.query(insertQuery, [email, passwordHash, displayName || email.split('@')[0]]);
+        const newUser = newRes.rows[0];
+        
+        req.login(newUser, (err) => {
+            if (err) return res.status(500).json({ error: 'Auto-login failed after signup' });
+            return res.json({ success: true, user: newUser });
+        });
+    } catch (err) {
+        logger.error(`[Signup Error] ${err.message}`);
+        res.status(500).json({ error: 'Internal server error during signup' });
+    }
+});
+
+app.post('/auth/login', 
+    passport.authenticate('local', { failWithError: true }),
+    (req, res) => {
+        res.json({ success: true, user: req.user });
+    },
+    (err, req, res, next) => {
+        res.status(401).json({ error: 'Invalid email or password' });
+    }
+);
+
+app.get('/auth/user', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ authenticated: true, user: req.user });
+    } else {
+        res.status(401).json({ authenticated: false });
+    }
 });
 
 app.get('/api/auth/session', (req, res) => {

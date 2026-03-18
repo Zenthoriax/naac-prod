@@ -1,5 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
 const db = require('../db');
 
 // Serialize user into the session
@@ -64,6 +66,39 @@ passport.use(new GoogleStrategy({
       return cb(null, user);
     } catch (err) {
       return cb(err, null);
+    }
+  }
+));
+
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  async function(email, password, cb) {
+    try {
+      const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (rows.length === 0) {
+        return cb(null, false, { message: 'Incorrect email or password.' });
+      }
+      
+      const user = rows[0];
+      
+      if (!user.password_hash) {
+         // User exists but has no password (probably signed up with Google)
+         return cb(null, false, { message: 'Please sign in with Google.' });
+      }
+
+      const isValid = await bcrypt.compare(password, user.password_hash);
+      if (!isValid) {
+        return cb(null, false, { message: 'Incorrect email or password.' });
+      }
+
+      // Update last login
+      await db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
+      
+      return cb(null, user);
+    } catch (err) {
+      return cb(err);
     }
   }
 ));
