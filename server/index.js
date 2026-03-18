@@ -96,7 +96,7 @@ const upload = multer({
 
 /* ─── API routes ─── */
 // ─── AUTHENTICATION ROUTES (Google OAuth) ───
-app.get('/auth/google',
+app.get('/api/auth/google',
     passport.authenticate('google', { 
         scope: ['profile', 'email'], 
         prompt: 'select_account',
@@ -104,7 +104,7 @@ app.get('/auth/google',
     })
 );
 
-app.get('/auth/google/callback', 
+app.get('/api/auth/google/callback', 
     passport.authenticate('google', { 
         session: false,
         failureRedirect: `${process.env.FRONTEND_URL || 'https://ssr-verifier-frontend.onrender.com'}/login?error=google_failed` 
@@ -132,7 +132,7 @@ app.get('/auth/google/callback',
     }
 );
 
-app.get('/auth/logout', (req, res) => {
+app.get('/api/auth/logout', (req, res) => {
     // With JWT, logout is mostly handled on frontend by clearing token.
     // We just redirect here.
     res.redirect('/login');

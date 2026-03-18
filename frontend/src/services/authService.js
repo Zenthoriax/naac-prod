@@ -38,8 +38,9 @@ export const authService = {
   // Initiate Google OAuth
   loginWithGoogle() {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('tokenExpiry'); // Added for safety
     localStorage.removeItem('user');
-    window.location.href = `${API_URL}/auth/google`;
+    window.location.href = `${API_URL}/api/auth/google`;
   },
 
   // Handle local signup
@@ -72,7 +73,7 @@ export const authService = {
 
   // Get current user
   async getCurrentUser() {
-    const response = await apiClient.get('/auth/user');
+    const response = await apiClient.get('/api/auth/user');
     return response.data.user;
   },
 
