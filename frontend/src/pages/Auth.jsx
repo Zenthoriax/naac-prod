@@ -89,14 +89,9 @@ export default function AuthPage() {
     <div className="auth-bg min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Floating Particles */}
-      {particles.map((p, i) => (
-        <Particle key={i} style={{ ...p, position: 'absolute' }} />
-      ))}
-
-      {/* Glow orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Glow orbs - subtle */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Card */}
       <motion.div

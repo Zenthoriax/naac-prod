@@ -10,52 +10,52 @@
 body {
   margin: 0;
   padding: 0;
-  background: #050510;
+  background: #000000;
   overflow-x: hidden;
 }
 
-/* Original Black Background */
+/* Complete Dark Theme - Solid Black like old Dashboard */
 .auth-bg {
-  background: #0a0a0a;
+  background: #000000;
   min-height: 100vh;
 }
 
-/* Glassmorphism card - Darker */
+/* Stark Glassmorphism - Minimalist */
 .glass-card {
-  background: #111;
-  border: 1px solid #333;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  background: #0a0a0a;
+  border: 1px solid #222;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
 }
 
 /* Input custom styles */
 .auth-input {
-  background: #1a1a1a !important;
+  background: #111 !important;
   border: 1px solid #333 !important;
-  color: #eaeaea !important;
+  color: #00ffcc !important; /* Teal accent like old theme */
   transition: all 0.2s ease;
 }
 .auth-input::placeholder {
-  color: #555;
+  color: #444;
 }
 .auth-input:focus {
   border-color: #00ffcc !important;
-  box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.2) !important;
+  box-shadow: 0 0 0 1px #00ffcc !important;
   outline: none !important;
 }
 
 /* Google button */
 .google-btn {
-  background: #1a1a1a;
+  background: #111;
   border: 1px solid #333;
-  color: #eaeaea;
+  color: #eee;
   transition: all 0.2s ease;
 }
 .google-btn:hover {
-  background: #222;
+  background: #1a1a1a;
   border-color: #444;
 }
 
-/* Primary button - Teal */
+/* Primary button - Pure Teal */
 .primary-btn {
   background: #00ffcc;
   color: #000;
@@ -67,12 +67,5 @@ body {
   transform: translateY(-1px);
 }
 
-
-/* Floating particles */
-@keyframes float-particle {
-  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
-  50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
-}
-.particle {
-  animation: float-particle 4s ease-in-out infinite;
-}
+/* Removed particles for ultra-minimalist theme */
+.particle { display: none !important; }

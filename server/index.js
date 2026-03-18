@@ -40,8 +40,8 @@ app.use(helmet({
       scriptSrc:  ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       styleSrc:   ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
       fontSrc:    ["'self'", "https://fonts.gstatic.com", "data:"],
-      connectSrc: ["'self'"],
-      imgSrc:     ["'self'", "data:"],
+      connectSrc: ["'self'", "https://*.onrender.com"],
+      imgSrc:     ["'self'", "data:", "https://*.googleusercontent.com"],
       frameSrc:   ["'none'"],
       objectSrc:  ["'none'"],
     },
@@ -56,12 +56,13 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // same-origin / server-to-server
-    if (!IS_PROD || allowedOrigins.length === 0) return cb(null, true);
+    // In production, allow the frontend to talk to the backend
+    if (!origin || !IS_PROD) return cb(null, true);
+    // Be more permissive if on Render
+    if (origin.endsWith('.onrender.com')) return cb(null, true);
     if (allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error("CORS: origin not allowed"));
   },
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 app.options("*", cors());
@@ -81,9 +82,9 @@ app.use(session({
     saveUninitialized: false,
     proxy: true,
     cookie: {
-        secure: true,
+        secure: IS_PROD, // true in prod
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: IS_PROD ? 'none' : 'lax', // Use none for cross-site cookie if needed, but relative should work with lax
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));

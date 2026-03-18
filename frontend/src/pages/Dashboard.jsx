@@ -34,6 +34,7 @@ const Dashboard = () => {
         }
       })
       .catch((e) => {
+          console.error("Dashboard Session Error:", e);
           toast.update(authToast, { render: "Identity verification failed.", type: "error", isLoading: false, autoClose: 3000 });
           setTimeout(() => window.location.href = '/login', 2000);
       });
