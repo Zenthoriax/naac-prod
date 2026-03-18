@@ -1,34 +1,3 @@
-"use strict";
-
-require("dotenv").config();
-
-const path    = require("path");
-const fs      = require("fs");
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const { rateLimit } = require('express-rate-limit');
-const multer  = require("multer"); 
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session); // Add connect-pg-simple
-const passport = require('./src/auth/passport');
-const db = require('./src/db'); // Require db pool
-const logger = require('./src/utils/logger'); // Structured Logger
-const bcrypt = require('bcryptjs'); // For local auth
-
-// Import routes
-const verifyRoute = require('./src/api/verify');
-const extractRoute = require("./src/api/extract"); // Keep extractRoute
-const reportRoute  = require("./src/api/report"); // Keep reportRoute
-const healthRoute  = require("./src/api/health"); // Keep healthRoute
-const auditorHandler = require('./src/api/auditor'); // This replaces the old auditRoute
-const auditRoutesV3 = require('./routes/auditRoutes');
-
-const app = express();
-const PORT = parseInt(process.env.PORT || "3000", 10);
-const DIST = path.join(__dirname, "../frontend/dist");
-const IS_PROD = process.env.NODE_ENV === "production";
-
 /* ─── Trust proxy (Render sits behind a proxy) ─── */
 app.set("trust proxy", 1);
 
@@ -55,14 +24,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : [];
 
 app.use(cors({
-  origin: (origin, cb) => {
-    // In production, allow the frontend to talk to the backend
-    if (!origin || !IS_PROD) return cb(null, true);
-    // Be more permissive if on Render
-    if (origin.endsWith('.onrender.com')) return cb(null, true);
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error("CORS: origin not allowed"));
-  },
+  origin: 'https://ssr-verifier-frontend.onrender.com',
   credentials: true,
 }));
 app.options("*", cors());
@@ -83,7 +45,7 @@ app.use(session({
     cookie: {
         secure: true,      // Must be true for HTTPS
         httpOnly: true,
-        sameSite: 'none',  // Changed from 'lax' to 'none' for cross-domain fixes
+        sameSite: 'none',  // Changed to 'none' for cross-domain fixes
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
