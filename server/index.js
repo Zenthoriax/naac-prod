@@ -92,15 +92,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug logging for sessions (Moved after Passport)
-app.use((req, res, next) => {
-    if (req.url.startsWith('/api/') || req.url.startsWith('/auth/')) {
-        const isAuth = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
-        console.log(`[Session Debug] ${req.method} ${req.url} - sid: ${req.sessionID} - auth: ${isAuth}`);
-    }
-    next();
-});
-
 /* ─── Rate limiters ─── */
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
