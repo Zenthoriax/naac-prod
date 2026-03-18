@@ -3,8 +3,9 @@
 -- 1. Users table for Google OAuth mapping
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    google_id VARCHAR(255) UNIQUE NOT NULL,
+    google_id VARCHAR(255) UNIQUE,            -- nullable for local-only users
     email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT,                        -- for local email+password auth
     display_name VARCHAR(255) NOT NULL,
     profile_photo_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

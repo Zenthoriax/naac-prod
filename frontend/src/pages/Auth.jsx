@@ -13,12 +13,43 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// Floating particle component
-const Particle = ({ style }) => (
-  <div
-    className="particle absolute rounded-full pointer-events-none"
-    style={style}
-  />
+// Eye icon for password visibility toggle
+const EyeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
+// Lock icon for password field
+const LockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0110 0v4"/>
+  </svg>
+);
+
+// Mail icon for email field
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+  </svg>
+);
+
+// User icon for display name
+const UserIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
 );
 
 
@@ -28,6 +59,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isLogin = mode === 'login';
 
@@ -69,14 +101,6 @@ export default function AuthPage() {
     authService.loginWithGoogle();
   };
 
-  const particles = [
-    { width: 4, height: 4, top: '15%', left: '10%', background: '#8b5cf6', animationDelay: '0s', animationDuration: '5s' },
-    { width: 6, height: 6, top: '75%', left: '85%', background: '#a78bfa', animationDelay: '1s', animationDuration: '6s' },
-    { width: 3, height: 3, top: '40%', left: '5%',  background: '#c084fc', animationDelay: '2s', animationDuration: '4s' },
-    { width: 5, height: 5, top: '85%', left: '20%', background: '#818cf8', animationDelay: '0.5s', animationDuration: '7s' },
-    { width: 4, height: 4, top: '20%', left: '90%', background: '#7c3aed', animationDelay: '3s', animationDuration: '5s' },
-  ];
-
   const formVariants = {
     initial: { opacity: 0, x: isLogin ? -20 : 20 },
     animate: { opacity: 1, x: 0 },
@@ -105,14 +129,15 @@ export default function AuthPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
             className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
-            style={{ background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(168, 85, 247, 0.2))', border: '1px solid rgba(139, 92, 246, 0.3)' }}
+            style={{ background: 'linear-gradient(135deg, rgba(0, 255, 204, 0.15), rgba(0, 204, 170, 0.1))', border: '1px solid rgba(0, 255, 204, 0.25)' }}
           >
-            <span className="text-3xl">⚡</span>
+            <span className="text-3xl">🛡️</span>
           </motion.div>
           <h1 className="text-[#00ffcc] text-3xl font-bold tracking-tight">
-            {isLogin ? 'Sign In' : 'Sign Up'}
+            {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Jain (Deemed-to-be University)</p>
+          <p className="text-slate-400 text-sm mt-1">NAAC SSR Document Verification System</p>
+          <p className="text-slate-600 text-xs mt-0.5">Jain (Deemed-to-be University)</p>
         </div>
 
         {/* Mode Toggle */}
@@ -120,7 +145,7 @@ export default function AuthPage() {
           {['login', 'signup'].map((m) => (
             <button
               key={m}
-              onClick={() => setMode(m)}
+              onClick={() => { setMode(m); setShowPassword(false); }}
               className="relative flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 capitalize"
               style={{ color: mode === m ? '#e2e8f0' : '#64748b' }}
             >
@@ -178,13 +203,18 @@ export default function AuthPage() {
                 <label className="block text-slate-400 text-xs font-medium mb-1.5 uppercase tracking-wider">
                   Display Name
                 </label>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                  placeholder="Your full name"
-                  className="auth-input w-full rounded-xl px-4 py-3 text-sm"
-                />
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <UserIcon />
+                  </span>
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    placeholder="Your full name"
+                    className="auth-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  />
+                </div>
               </motion.div>
             )}
 
@@ -193,29 +223,52 @@ export default function AuthPage() {
               <label className="block text-slate-400 text-xs font-medium mb-1.5 uppercase tracking-wider">
                 Email Address
               </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                className="auth-input w-full rounded-xl px-4 py-3 text-sm"
-              />
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <MailIcon />
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  className="auth-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                />
+              </div>
             </div>
 
-            {/* Password */}
+            {/* Password with eye toggle */}
             <div>
               <label className="block text-slate-400 text-xs font-medium mb-1.5 uppercase tracking-wider">
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={isLogin ? 'Your password' : 'Create a strong password'}
-                required
-                className="auth-input w-full rounded-xl px-4 py-3 text-sm"
-              />
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <LockIcon />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={isLogin ? 'Your password' : 'Create a strong password'}
+                  required
+                  className="auth-input w-full rounded-xl pl-10 pr-12 py-3 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-colors duration-200"
+                  style={{ color: showPassword ? '#00ffcc' : '#555', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+              {!isLogin && (
+                <p className="text-slate-600 text-xs mt-1.5">Must be at least 6 characters</p>
+              )}
             </div>
 
             {/* Submit */}
@@ -234,7 +287,7 @@ export default function AuthPage() {
                   {isLogin ? 'Signing in...' : 'Creating Account...'}
                 </span>
               ) : (
-                isLogin ? 'Sign In' : 'Create Account'
+                isLogin ? 'Sign In →' : 'Create Account →'
               )}
             </motion.button>
           </motion.form>
@@ -244,14 +297,22 @@ export default function AuthPage() {
         <p className="text-center text-slate-600 text-xs mt-6">
           {isLogin ? "New here? " : "Already have an account? "}
           <button
-            onClick={() => setMode(isLogin ? 'signup' : 'login')}
+            onClick={() => { setMode(isLogin ? 'signup' : 'login'); setShowPassword(false); }}
             className="text-[#00ffcc] hover:text-[#00ccaa] transition-colors font-medium"
           >
             {isLogin ? 'Create an account' : 'Sign in'}
           </button>
         </p>
 
-      
+        {/* Security badge */}
+        <div className="flex items-center justify-center gap-1.5 mt-4">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <span className="text-slate-700 text-[10px] tracking-wider uppercase">256-bit SSL Encrypted</span>
+        </div>
+
       </motion.div>
     </div>
   );

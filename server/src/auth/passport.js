@@ -10,7 +10,7 @@ const db = require('../db');
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "https://ssr-verifier-backend.onrender.com/api/auth/google/callback",
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || "https://ssr-verifier-backend.onrender.com/api/auth/google/callback",
     proxy: true,
     state: false, // DISABLES the strict state check that is failing
     pkce: false   // DISABLES PKCE which often fails on free-tier proxies

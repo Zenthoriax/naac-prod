@@ -237,11 +237,6 @@ app.get('/api/auth/session', verifyToken, async (req, res) => {
     }
 });
 
-app.post('/api/verify-token', verifyToken, (req, res) => {
-    res.json({ valid: true, user: req.user });
-});
-
-
 // ─── CORE V3 API ROUTES ───
 app.use('/api/audit', auditRoutesV3); // Mount the new Groq AI pipeline
 
