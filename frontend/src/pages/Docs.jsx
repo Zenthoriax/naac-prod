@@ -158,7 +158,7 @@ export default function Docs() {
           Back to Secure Gateway
         </a>
         <p style={{ color: '#555', fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
-          Designed & Engineered by <strong><span style={{ color: '#00ccff' }}>Zenthoriax</span></strong>
+          Designed & Engineered by <strong><span style={{ color: '#00ccff' }}>Zenthoriax & PancakesPekka</span></strong>
         </p>
       </div>
     </div>
